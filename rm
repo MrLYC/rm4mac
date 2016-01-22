@@ -36,4 +36,8 @@ if __name__ == "__main__":
         target = mv_to_trash
 
     for f in args.files:
-        target(f.rstrip(os.pathsep), args.recursive)
+        try:
+            target(f.rstrip(os.pathsep), args.recursive)
+        except Exception as err:
+            print(err)
+            break
