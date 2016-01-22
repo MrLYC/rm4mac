@@ -3,6 +3,7 @@
 
 import os
 import shutil
+from datetime import datetime
 
 from argparse import ArgumentParser
 
@@ -10,10 +11,20 @@ TRASH_PATH = os.path.expanduser("~/.Trash/")
 
 
 def mv_to_trash(path, recursive=True):
+    _, name = os.path.split(path)
     if recursive:
-        shutil.move(path, TRASH_PATH)
+        try:
+            shutil.move(path, TRASH_PATH)
+        except shutil.Error as err:
+            if os.path.exists(os.path.join(TRASH_PATH, name)):
+                now = datetime.now()
+                shutil.move(path, os.path.join(
+                    TRASH_PATH,
+                    "({time}){name}".format(time=now.isoformat(), name=name))
+                )
+            else:
+                raise
     else:
-        _, name = os.path.split(path)
         os.rename(path, os.path.join(TRASH_PATH, name))
 
 
