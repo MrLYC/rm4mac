@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+import os
+import shutil
+
+from argparse import ArgumentParser
+
+TRASH_PATH = os.path.expanduser("~/.Trash/")
+
+
+def mv_to_trash(path, recursive=True):
+    if recursive:
+        shutil.move(path, TRASH_PATH)
+    else:
+        _, name = os.path.split(path)
+        os.rename(path, os.path.join(TRASH_PATH, name))
+
+
+def delete_file(path, recursive=True):
+    if recursive:
+        shutil.rmtree(path)
+    else:
+        os.remove(path)
+
+if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument("files", nargs="+")
+    parser.add_argument("-r", "--recursive", action="store_true")
+    parser.add_argument("-f", "--force", action="store_true")
+    args = parser.parse_args()
+
+    if args.force:
+        target = delete_file
+    else:
+        target = mv_to_trash
+
+    for f in args.files:
+        target(f.rstrip(os.pathsep), args.recursive)
